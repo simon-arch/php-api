@@ -14,51 +14,22 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/api/v1')]
 class TestController extends AbstractController
 {
+    private static array $cachedUsers = [];
+    // TODO implement commit method to write user changes back to json
 
-    public const USERS_DATA = [
-        [
-            'id'    => '1',
-            'email' => 'test1@gmail.com',
-            'name'  => 'John1'
-        ],
-        [
-            'id'    => '2',
-            'email' => 'test2@gmail.com',
-            'name'  => 'John2'
-        ],
-        [
-            'id'    => '3',
-            'email' => 'test3@gmail.com',
-            'name'  => 'John3'
-        ],
-        [
-            'id'    => '4',
-            'email' => 'test4@gmail.com',
-            'name'  => 'John4'
-        ],
-        [
-            'id'    => '5',
-            'email' => 'test5@gmail.com',
-            'name'  => 'John5'
-        ],
-        [
-            'id'    => '6',
-            'email' => 'test6@gmail.com',
-            'name'  => 'John6'
-        ],
-        [
-            'id'    => '7',
-            'email' => 'test7@gmail.com',
-            'name'  => 'John7'
-        ],
-    ];
+    public function __construct()
+    {
+        $jsonPath = "../public/users.json";
+        $jsonData = file_get_contents($jsonPath);
+        self::$cachedUsers = json_decode($jsonData);
+    }
 
     #[Route('/users', name: 'app_collection_users', methods: ['GET'])]
     #[IsGranted("ROLE_ADMIN")]
     public function getCollection(): JsonResponse
     {
         return new JsonResponse([
-            'data' => self::USERS_DATA
+            'data' => self::$cachedUsers
         ], Response::HTTP_OK);
     }
 
@@ -83,7 +54,7 @@ class TestController extends AbstractController
 
         // TODO check by regex
 
-        $countOfUsers = count(self::USERS_DATA);
+        $countOfUsers = count(self::$cachedUsers);
 
         $newUser = [
             'id'    => $countOfUsers + 1,
@@ -134,7 +105,7 @@ class TestController extends AbstractController
     {
         $userData = null;
 
-        foreach (self::USERS_DATA as $user) {
+        foreach (self::$cachedUsers as $user) {
             if (!isset($user['id'])) {
                 continue;
             }

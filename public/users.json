@@ -1,0 +1,37 @@
+[
+  {
+    "id": "ab44da5f-e610-4866-a6de-e91dc6313aaa",
+    "email": "ipz231_vai@student.ztu.edu.ua",
+    "name": "Artem"
+  },
+  {
+    "id": "2",
+    "email": "test2@gmail.com",
+    "name": "John2"
+  },
+  {
+    "id": "3",
+    "email": "test3@gmail.com",
+    "name": "John3"
+  },
+  {
+    "id": "4",
+    "email": "test4@gmail.com",
+    "name": "John4"
+  },
+  {
+    "id": "5",
+    "email": "test5@gmail.com",
+    "name": "John5"
+  },
+  {
+    "id": "6",
+    "email": "test6@gmail.com",
+    "name": "John6"
+  },
+  {
+    "id": "7",
+    "email": "test7@gmail.com",
+    "name": "John7"
+  }
+]
