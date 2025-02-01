@@ -15,26 +15,24 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class TestController extends AbstractController
 {
     private static array $cachedUsers = [];
-    // TODO implement commit method to write user changes back to json
-
+    private const JSON_PATH = "../public/users.json";
     public function __construct()
     {
-        $jsonPath = "../public/users.json";
-        $jsonData = file_get_contents($jsonPath);
-        self::$cachedUsers = json_decode($jsonData);
+        $jsonData = file_get_contents(self::JSON_PATH);
+        self::$cachedUsers = json_decode($jsonData, true);
     }
 
-    #[Route('/users', name: 'app_collection_users', methods: ['GET'])]
+    #[Route('/users', name: 'app_get-all-users', methods: ['GET'])]
     #[IsGranted("ROLE_ADMIN")]
-    public function getCollection(): JsonResponse
+    public function getAllUsers(): JsonResponse
     {
         return new JsonResponse([
             'data' => self::$cachedUsers
         ], Response::HTTP_OK);
     }
 
-    #[Route('/users/{id}', name: 'app_item_users', methods: ['GET'])]
-    public function getItem(string $id): JsonResponse
+    #[Route('/users/{id}', name: 'app_get-user-by-id', methods: ['GET'])]
+    public function getUserById(string $id): JsonResponse
     {
         $userData = $this->findUserById($id);
 
@@ -43,8 +41,8 @@ class TestController extends AbstractController
         ], Response::HTTP_OK);
     }
 
-    #[Route('/users', name: 'app_create_users', methods: ['POST'])]
-    public function createItem(Request $request): JsonResponse
+    #[Route('/users', name: 'app_create-user', methods: ['POST'])]
+    public function createUser(Request $request): JsonResponse
     {
         $requestData = json_decode($request->getContent(), true);
 
@@ -52,49 +50,65 @@ class TestController extends AbstractController
             throw new UnprocessableEntityHttpException("name and email are required");
         }
 
-        // TODO check by regex
-
-        $countOfUsers = count(self::$cachedUsers);
-
         $newUser = [
-            'id'    => $countOfUsers + 1,
+            'id'    => $this->getGUID(),
             'name'  => $requestData['name'],
             'email' => $requestData['email']
         ];
 
-        // TODO add new user to collection
+        self::$cachedUsers[] = $newUser;
+        file_put_contents(self::JSON_PATH, json_encode(self::$cachedUsers, JSON_PRETTY_PRINT));
 
         return new JsonResponse([
             'data' => $newUser
         ], Response::HTTP_CREATED);
     }
 
-    #[Route('/users/{id}', name: 'app_delete_users', methods: ['DELETE'])]
-    public function deleteItem(string $id): JsonResponse
+    #[Route('/users/{id}', name: 'app_delete-user', methods: ['DELETE'])]
+    public function deleteUser(string $id): JsonResponse
     {
-        $this->findUserById($id);
+        $user = $this->findUserById($id);
+        $userIndex = array_search($user, self::$cachedUsers);
 
-        // TODO remove user from collection
+        if ($userIndex === false) {
+            return new JsonResponse(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        unset(self::$cachedUsers[$userIndex]);
+        file_put_contents(self::JSON_PATH, json_encode(self::$cachedUsers, JSON_PRETTY_PRINT));
 
         return new JsonResponse([], Response::HTTP_NO_CONTENT);
     }
 
-    #[Route('/users/{id}', name: 'app_update_users', methods: ['PATCH'])]
-    public function updateItem(string $id, Request $request): JsonResponse
+    #[Route('/users/{id}', name: 'app_update-user', methods: ['PATCH'])]
+    public function updateUser(string $id, Request $request): JsonResponse
     {
         $requestData = json_decode($request->getContent(), true);
 
-        if (!isset($requestData['name'])) {
-            throw new UnprocessableEntityHttpException("name is required");
+        if (!isset($requestData['name']) && !isset($requestData['email'])) {
+            throw new UnprocessableEntityHttpException("name or email is required");
         }
 
-        $userData = $this->findUserById($id);
+        $user = $this->findUserById($id);
+        $userIndex = array_search($user, self::$cachedUsers);
 
-        // TODO update user name
+        if ($userIndex === false) {
+            return new JsonResponse(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
 
-        $userData['name'] = $requestData['name'];
+        if (isset($requestData['name'])) {
+            self::$cachedUsers[$userIndex]['name'] = $requestData['name'];
+        }
 
-        return new JsonResponse(['data' => $userData], Response::HTTP_OK);
+        if (isset($requestData['email'])) {
+            self::$cachedUsers[$userIndex]['email'] = $requestData['email'];
+        }
+
+        file_put_contents(self::JSON_PATH, json_encode(self::$cachedUsers, JSON_PRETTY_PRINT));
+
+        return new JsonResponse([
+            'data' => self::$cachedUsers[$userIndex]
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -112,7 +126,6 @@ class TestController extends AbstractController
 
             if ($user['id'] == $id) {
                 $userData = $user;
-
                 break;
             }
 
@@ -124,5 +137,15 @@ class TestController extends AbstractController
 
         return $userData;
     }
-
+    function getGUID(){
+        mt_srand((double)microtime()*10000);
+        $charid = md5(uniqid(rand(), true));
+        $hyphen = chr(45);
+        $uuid = substr($charid, 0, 8).$hyphen
+                .substr($charid, 8, 4).$hyphen
+                .substr($charid,12, 4).$hyphen
+                .substr($charid,16, 4).$hyphen
+                .substr($charid,20,12);
+        return $uuid;
+    }
 }
