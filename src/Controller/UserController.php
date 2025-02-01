@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/api/v1')]
-class TestController extends AbstractController
+class UserController extends AbstractController
 {
     private static array $cachedUsers = [];
     private const JSON_PATH = "../public/users.json";
