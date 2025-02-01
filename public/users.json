@@ -1,0 +1,37 @@
+[
+    {
+        "id": "ab44da5f-e610-4866-a6de-e91dc6313aaa",
+        "email": "ipz231_vai@student.ztu.edu.ua",
+        "name": "Artem"
+    },
+    {
+        "id": "db421dd5-c861-4ee5-a5b6-f818bf8e6424",
+        "email": "anna@gmail.com",
+        "name": "Anna"
+    },
+    {
+        "id": "f068acf1-8808-4225-9b58-9f17fab7449a",
+        "email": "ostap@gmail.com",
+        "name": "Ostap"
+    },
+    {
+        "id": "6e7c9e0f-2f57-4338-9ee5-391b854cc105",
+        "email": "vira@gmail.com",
+        "name": "Vira"
+    },
+    {
+        "id": "2cea8ab3-e0ba-4b0e-b9ae-f6335d85b9e0",
+        "email": "nikita@gmail.com",
+        "name": "Nikita"
+    },
+    {
+        "id": "e8e66fef-44b6-41e4-ab17-1a43b6c1f73c",
+        "email": "mita@gmail.com",
+        "name": "Mila"
+    },
+    {
+        "id": "392c3536-5966-4c2f-9ebd-3bf1c47c0fcc",
+        "email": "pavlo@gmail.com",
+        "name": "Pavlo"
+    }
+]
